@@ -14,4 +14,4 @@ module.exports = [{
         1
     ]
 }
-  ;]
+];
