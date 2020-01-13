@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Friend Finder - Survey</title>
@@ -8,8 +9,11 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://code.jquery.com/jquery.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+
 
 </head>
+
 <body>
 
   <div class="container">
@@ -24,29 +28,18 @@
           <div class="card-header">
             <h3><strong>Survey</strong></h3>
           </div>
-          <div class="card-body">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-                <label class="form-check-label" for="exampleRadios1">
-                  Default radio
-                </label>
+          <div class="card-body" id='survey-body'>
+            <form>
+              <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" class="form-control" id="name">
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
-                <label class="form-check-label" for="exampleRadios2">
-                  Second default radio
-                </label>
+              <div class="form-group">
+                <label for="picture">Add in a url for your picture!</label>
+                <input type="text" class="form-control" id="img_url">
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios3" value="option3" disabled>
-                <label class="form-check-label" for="exampleRadios3">
-                  Disabled radio
-                </label>
-              </div>
-            <br>
-            <div class="text-right">
-              <button type="submit" class="btn btn-primary btn-md" id="add-btn"><span class="fa fa-fire"></span> Find your buddy!</button>
-            </div>
+            </form>
+
           </div>
         </div>
 
@@ -55,24 +48,93 @@
   </div>
 
   <script type="text/javascript">
-    // // Question: What does this code do?
-    // $("#add-btn").on("click", function(event) {
-    //   event.preventDefault();
-    //   var newCharacter = {
-    //     name: $("#name").val().trim(),
-    //     role: $("#role").val().trim(),
-    //     age: $("#age").val().trim(),
-    //     forcePoints: $("#force-points").val().trim()
-    //   };
 
-    //   // Question: What does this code do??
-    //   $.post("/api/characters", newCharacter)
-    //     .then(function(data) {
-    //       console.log("add.html", data);
-    //       alert("Adding character...");
-    //     });
-    // });
+    var questions = [
+      'Your mind is always buzzing with unexplored ideas and plans.'
+      , 'Generally speaking, you rely more on your experience than your imagination.'
+      , 'You find it easy to stay relaxed and focused even when there is some pressure.'
+      , 'You rarely do something just out of sheer curiosity.'
+      , 'People can rarely upset you.'
+      , 'It is often difficult for you to relate to other people’s feelings.'
+      , 'In a discussion, truth should be more important than people’s sensitivities.'
+      , 'You rarely get carried away by fantasies and ideas.'
+      , 'You feel more energetic after spending time with a group of people.'
+    ,'Choose any number.'];
+    questions.forEach(element => {
+      var fs = $('<fieldset>');
+      fs.addClass('form-group');
+      fs.attr('id', 'fs-id-' + questions.indexOf(element));
+      fs.attr('index', questions.indexOf(element));
+
+
+      var question = $('<div>');
+      question.addClass('row');
+      var leg = $('<legend>');
+      leg.addClass('col-form-label col-sm-2 pt-0');
+      leg.text(element);
+      question.append(leg);
+      fs.append(question);
+      var sel = $('<select class="list">');
+      for (let index = 0; index < 5; index++) {
+
+        var op = $("<option>");
+        op.text(index + 1);
+
+        sel.append(op);
+        fs.append(sel);
+        $('#survey-body').append(fs);
+      }
+    });
+    var submit = $('<button type="submit" id="submit-btn" class="btn btn-primary btn-lrg m-3">');
+    submit.text('FIND MY BUDDY!');
+    $("#survey-body").append(submit);
+
+    $("#submit-btn").on("click", function (event) {
+      event.preventDefault();
+      var submittedScores = [];
+
+      questions.forEach(element => {
+        submittedScores[questions.indexOf(element)] = Number($("#fs-id-" + questions.indexOf(element)).find('select.list option:selected').val())
+      });
+      console.log(submittedScores);
+
+
+      var newFriendFind = {
+        "name": $("#name").val().trim(),
+        "photo": $("#img_url").val().trim(),
+        "scores":
+          submittedScores
+
+      };
+      console.log(JSON.stringify(newFriendFind));
+      $.post("/api/friends", newFriendFind,
+        function (data) {
+
+
+          if (data) {
+            // alert("Your friend is " + data.name);
+            swal.fire({
+              title: 'NICE! Your friend is' + data.name,
+              html: '<img src="' + data.photo + '">',
+              confirmButtonText: 'Cool'
+            })
+          }
+
+
+          else {
+            alert("Sorry, something went wrong...");
+          }
+
+          // Clear the form when submitting
+          $("#name").val("");
+          $("#img_url").val("");
+
+        });
+    });
+
+
   </script>
 
 </body>
+
 </html>

@@ -13,5 +13,21 @@ module.exports = [{
         4,
         1
     ]
+},
+{
+    "name": "Test Rodson",
+    "photo": "https://via.placeholder.com/300.png",
+    "scores": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+    ]
 }
 ];
